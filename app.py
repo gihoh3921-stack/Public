@@ -10,7 +10,11 @@ st.caption("온라인 무료 API 기반 실시간 프로토타입 서비스")
 with st.sidebar:
     st.header("🔑 시스템 설정")
     groq_key = st.text_input("Groq API Key를 입력하세요", type="password")
+    # 마우스로 누를 수 있는 버튼 강제 생성
+    if st.button("설정 저장 및 적용"):
+        st.success("키가 등록되었습니다!")
     st.info("API Key는 ://groq.com에서 무료로 발급받을 수 있습니다.")
+
 
 # 3. 채팅 세션 데이터베이스 초기화
 if "messages" not in st.session_state:
