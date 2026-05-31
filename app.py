@@ -85,7 +85,7 @@ if user_input := st.chat_input("요청 사항을 입력하세요 / Please enter 
             messages=formatted_messages
         )
 
-        answer = response.choices.message.content
+        answer = response.choices[0].message.content
         st.session_state.messages.append({"role": "assistant", "content": answer})
         st.chat_message("assistant").write(answer)
 
