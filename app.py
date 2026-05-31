@@ -32,7 +32,10 @@ if user_input := st.chat_input("컨시어지에게 요청할 내용을 입력하
 
     # 6. Groq 클라이언트 안전 연동 및 호출
     try:
-        client = OpenAI(base_url="https://groq.com", api_key=groq_key)
+        # 끝에 붙은 /v1을 제외하고 입력하는 것이 공식 최신 규격입니다.
+client = OpenAI(base_url="https://api.groq.com", api_key=groq_key)
+
+
 
         system_prompt = (
             "당신은 호텔 컨시어지입니다. 아래의 매뉴얼에 맞춰서만 정중하게 답변하세요.\n"
