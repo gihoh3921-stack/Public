@@ -51,9 +51,9 @@ if user_input := st.chat_input("컨시어지에게 요청할 내용을 입력하
 
     # 초고속 무료 추론 엔진 호출
     response = client.chat.completions.create(
-        model="llama3-8b-8192", # 무료 티어 중 가장 빠르고 성능이 좋은 모델
-        messages=[{"role": "system", "content": system_prompt}] + st.session_state.messages
-    )
+    model="llama-3.3-70b-versatile", # 현재 가장 성능이 뛰어난 최신 무료 모델로 변경
+    messages=[{"role": "system", "content": system_prompt}] + st.session_state.messages
+)
 
     answer = response.choices.message.content
 
