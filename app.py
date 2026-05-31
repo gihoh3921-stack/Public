@@ -1,62 +1,50 @@
 import streamlit as st
 from openai import OpenAI
 
-# 1. 브라우저 화면 레이아웃 및 타이틀 세팅
+# 1. 화면 설정
 st.set_page_config(page_title="그랜드 호텔 AI 컨시어지", page_icon="🏨")
-st.title("🏨 AI 호텔 컨시어지 (2단계)")
-st.caption("온라인 무료 API 기반 실시간 프로토타입 서비스")
+st.title("🏨 AI 호텔 컨시어지 (2단계 완료)")
+st.caption("온라인 무료 환경 세팅 완료 버전")
 
-# 2. 사이드바에 무료 API 키 입력창 생성 (보안 및 편의성 확보)
-with st.sidebar:
-    st.header("🔑 시스템 설정")
-    groq_key = st.text_input("Groq API Key를 입력하세요", type="password")
-    # 마우스로 누를 수 있는 버튼 강제 생성
-    if st.button("설정 저장 및 적용"):
-        st.success("키가 등록되었습니다!")
-    st.info("API Key는 ://groq.com에서 무료로 발급받을 수 있습니다.")
+# 2. Streamlit Secrets 금고에서 안전하게 키 가져오기
+try:
+    groq_key = st.secrets["GROQ_API_KEY"]
+except:
+    st.error("오류: Streamlit 클라우드 설정(Secrets)에 GROQ_API_KEY를 등록해 주세요!")
+    st.stop()
 
-
-# 3. 채팅 세션 데이터베이스 초기화
+# 3. 대화 세션 초기화
 if "messages" not in st.session_state:
     st.session_state.messages = [
-        {"role": "assistant", "content": "안녕하세요! 그랜드 호텔 AI 컨시어지입니다. 조식 시간이나 어메니티 요청 등 필요한 사항을 말씀해 주세요."}
+        {"role": "assistant", "content": "안녕하세요! 그랜드 호텔 AI 컨시어지입니다. 무엇을 도와드릴까요?"}
     ]
 
-# 4. 화면에 대화 기록 출력
+# 4. 이전 대화 출력
 for msg in st.session_state.messages:
     st.chat_message(msg["role"]).write(msg["content"])
 
-# 5. 고객 메시지 입력 시 동작 처리
+# 5. 고객 메시지 처리
 if user_input := st.chat_input("컨시어지에게 요청할 내용을 입력하세요..."):
-    if not groq_key:
-        st.warning("왼쪽 사이드바에 Groq API Key를 먼저 입력해 주세요!")
-        st.stop()
-
-    # 화면에 고객 입력 추가
     st.session_state.messages.append({"role": "user", "content": user_input})
     st.chat_message("user").write(user_input)
 
-    # 무료 오픈소스 모델 연결용 클라이언트 설정
+    # API 클라이언트 자동 연결
     client = OpenAI(base_url="https://groq.com", api_key=groq_key)
 
-    # 핵심 컨시어지 지침서 주입
     system_prompt = (
-        "당신은 호텔 컨시어지입니다. 아래 호텔 가이드를 기반으로 답변하세요.\n"
+        "당신은 호텔 컨시어지입니다. 아래 가이드를 기반으로 답변하세요.\n"
         "- 체크인: 15:00 / 체크아웃: 11:00\n"
         "- 조식 시간: 오전 7시 ~ 10시 (2층 메인 뷔페)\n"
         "- 와이파이 ID: Grand_Guest / PW: hotel2026\n\n"
-        "만약 수건 추가, 청소 요청 등 직원이 움직여야 하는 '물리적 요청'이 들어오면 "
-        "반드시 대답 끝에 '[요청 접수 번호: #REC-001] 담당 부서로 접수를 완료했습니다.'라는 문구를 포함하세요."
+        "물리적 요청(수건 등)에는 반드시 '[요청 접수 번호: #REC-001] 담당 부서로 전달했습니다.'를 포함하세요."
     )
 
-    # 초고속 무료 추론 엔진 호출
+    # 최신 고성능 무료 모델 호출
     response = client.chat.completions.create(
-    model="llama-3.3-70b-versatile", # 현재 가장 성능이 뛰어난 최신 무료 모델로 변경
-    messages=[{"role": "system", "content": system_prompt}] + st.session_state.messages
-)
+        model="llama-3.3-70b-versatile",
+        messages=[{"role": "system", "content": system_prompt}] + st.session_state.messages
+    )
 
     answer = response.choices.message.content
-
-    # 화면에 AI 답변 추가
     st.session_state.messages.append({"role": "assistant", "content": answer})
     st.chat_message("assistant").write(answer)
